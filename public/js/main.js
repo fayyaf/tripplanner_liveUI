@@ -1,4 +1,6 @@
-$(function initializeMap (){
+var map;
+
+function initializeMap (){
 
   var fullstackAcademy = new google.maps.LatLng(40.705086, -74.009151);
 
@@ -40,6 +42,35 @@ $(function initializeMap (){
     styles: styleArr
   });
 
+  return currentMap;
+}
+
+$(function createMap(){
+  map = initializeMap();
+    // jQUERY for hotel select
+  for (var i in hotels) {
+    $("#hotels").append($("<option>").attr("value", "0").text(hotels[i].name));
+  }
+
+  // jQUERY for restaurant select
+  for (var j in restaurants) {
+    $("#restaurants").append($("<option>").attr("value", "0").text(restaurants[j].name));
+  }
+
+  // jQUERY for activity select
+  for (var k in activities) {
+    $("#activities").append($("<option>").attr("value", "0").text(activities[k].name));
+  }
+})
+
+
+// adding a day
+var count = 1;
+if ($("#day-add").click(function() {
+  count++;
+  $(".day-btn").append(`<div><button class="btn btn-circle day-btn"> ${ count } </button></div>`);
+}));
+
   var iconURLs = {
     hotel: '/images/lodging_0star.png',
     restaurant: '/images/restaurant.png',
@@ -53,11 +84,52 @@ $(function initializeMap (){
       icon: iconURL,
       position: latLng
     });
-    marker.setMap(currentMap);
+    marker.setMap(map);
   }
 
-  drawMarker('hotel', [40.705137, -74.007624]);
-  drawMarker('restaurant', [40.705137, -74.013940]);
-  drawMarker('activity', [40.716291, -73.995315]);
+  // jQUERY for hotel add button
+  $("#hotel-btn").click(function() {
+    var selectedHotel = $("#hotels option:selected").text();
+    var hotelCoords = [];
+    for (var i in hotels) {
+      if (selectedHotel === hotels[i].name) {
+        hotelCoords = hotels[i].place.location;
+      }
+    }
+    selectedHotel.className = "itinerary-item";
+    $("#hotel-i").append(`<div class="itinerary-item {{selectedHotel}}"> ${ selectedHotel } </div> <button class="btn btn-xs btn-danger remove btn-circle pull-right {{selectedHotel}}">x</button> <br>`);
+    drawMarker('hotel', hotelCoords);
+  });
 
-});
+  // jQUERY for restaurant add button
+  $("#restaurant-btn").click(function() {
+    var selectedrestaurant = $("#restaurants option:selected").text();
+    var restaurantCoords = [];
+    for (var i in restaurants) {
+      if (selectedrestaurant === restaurants[i].name) {
+        restaurantCoords = restaurants[i].place.location;
+      }
+    }
+    selectedrestaurant.className = "itinerary-item";
+    $("#restaurant-i").append(`<div class="itinerary-item"> ${ selectedrestaurant } </div><button class="btn btn-xs btn-danger remove btn-circle pull-right" id="btn-restaurant-i">x</button><br>`);
+    drawMarker('restaurant', restaurantCoords);
+  });
+
+  // jQuery for activity add button
+  $("#activity-btn").click(function() {
+    var selectedactivity = $("#activities option:selected").text();
+    for (var i in activities) {
+      if (selectedactivity === activities[i].name) {
+        activityCoords = activities[i].place.location;
+      }
+    }
+    selectedactivity.className = "itinerary-item";
+    $("#activity-i").append(`<div class="itinerary-item"> ${ selectedactivity } </div><button class="btn btn-xs btn-danger remove btn-circle pull-right" id="btn-activity-i">x</button><br>`);
+    drawMarker('activity', activityCoords);
+  });
+
+  // jQuery for deleting hotel item
+  $("#hotel-i").on('click', '#hotel-i.children("button")', function() {
+    console.log("hotel inventory button clicked");
+  });
+
